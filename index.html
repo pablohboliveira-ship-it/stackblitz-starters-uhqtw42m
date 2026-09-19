@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle Financeiro</title>
+  
+  <!-- Biblioteca Oficial do Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- Arquivo de Estilos (CSS) -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- CABEÇALHO DO APLICATIVO -->
+  <header class="app-header">
+    <h1>Controle Financeiro</h1>
+  </header>
+
+  <main class="app-container">
+
+    <!-- 1. ABA INÍCIO (DASHBOARD) -->
+    <section id="tab-inicio" class="tab-content active">
+      <div class="filter-container">
+        <label for="month-filter">Mês de Referência:</label>
+        <select id="month-filter">
+          <option value="2026-01">Jan / 2026</option>
+          <option value="2026-02">Fev / 2026</option>
+          <option value="2026-03">Mar / 2026</option>
+          <option value="2026-04">Abr / 2026</option>
+          <option value="2026-05">Mai / 2026</option>
+          <option value="2026-06">Jun / 2026</option>
+          <option value="2026-07">Jul / 2026</option>
+          <option value="2026-08">Ago / 2026</option>
+          <option value="2026-09" selected>Set / 2026</option>
+          <option value="2026-10">Out / 2026</option>
+          <option value="2026-11">Nov / 2026</option>
+          <option value="2026-12">Dez / 2026</option>
+        </select>
+      </div>
+
+      <div class="cards-grid">
+        <div class="card card-saldo">
+          <h3>Saldo do Mês</h3>
+          <p id="resumo-saldo">R$ 0,00</p>
+        </div>
+        <div class="card card-receita">
+          <h3>Receitas</h3>
+          <p id="resumo-receitas">R$ 0,00</p>
+        </div>
+        <div class="card card-despesa">
+          <h3>Despesas</h3>
+          <p id="resumo-despesas">R$ 0,00</p>
+        </div>
+      </div>
+
+      <div class="recent-section">
+        <h2>Últimos Lançamentos</h2>
+        <div id="lista-recentes" class="transaction-list">
+          <!-- Os lançamentos aparecerão aqui automaticamente -->
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. ABA LANÇAMENTOS (NOVA RECEITA / DESPESA) -->
+    <section id="tab-lancamentos" class="tab-content">
+      <h2>Novo Lançamento</h2>
+      <form id="form-lancamento" class="app-form">
+        <div class="form-group">
+          <label for="lanc-desc">Descrição</label>
+          <input type="text" id="lanc-desc" placeholder="Ex: Supermercado, Salário" required>
+        </div>
+
+        <div class="form-group">
+          <label for="lanc-valor">Valor (R$)</label>
+          <input type="number" id="lanc-valor" step="0.01" placeholder="0.00" required>
+        </div>
+
+        <div class="form-group">
+          <label for="lanc-tipo">Tipo</label>
+          <select id="lanc-tipo" required>
+            <option value="despesa">Despesa</option>
+            <option value="receita">Receita</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="lanc-data">Data</label>
+          <input type="date" id="lanc-data" required>
+        </div>
+
+        <div class="form-group">
+          <label for="lanc-cat">Categoria</label>
+          <select id="lanc-cat">
+            <option value="">Carregando categorias...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="lanc-forma">Forma de Pagamento</label>
+          <select id="lanc-forma" required>
+            <option value="conta">Conta Corrente / Dinheiro</option>
+            <option value="cartao">Cartão de Crédito</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="lanc-cartao">Cartão de Crédito (se aplicável)</label>
+          <select id="lanc-cartao">
+            <option value="">Carregando cartões...</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-submit">Salvar Lançamento</button>
+      </form>
+    </section>
+
+    <!-- 3. ABA CARTÕES -->
+    <section id="tab-cartoes" class="tab-content">
+      <h2>Cadastrar Cartão de Crédito</h2>
+      <form id="form-cartao" class="app-form">
+        <div class="form-group">
+          <label for="cartao-nome">Nome do Cartão</label>
+          <input type="text" id="cartao-nome" placeholder="Ex: Nubank, Itaú" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cartao-limite">Limite (R$)</label>
+          <input type="number" id="cartao-limite" step="0.01" placeholder="1000.00" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cartao-fechamento">Dia de Fechamento</label>
+          <input type="number" id="cartao-fechamento" min="1" max="31" placeholder="Ex: 5" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cartao-vencimento">Dia de Vencimento</label>
+          <input type="number" id="cartao-vencimento" min="1" max="31" placeholder="Ex: 12" required>
+        </div>
+
+        <button type="submit" class="btn-submit">Cadastrar Cartão</button>
+      </form>
+    </section>
+
+    <!-- 4. ABA CATEGORIAS -->
+    <section id="tab-categorias" class="tab-content">
+      <h2>Cadastrar Categoria</h2>
+      <form id="form-categoria" class="app-form">
+        <div class="form-group">
+          <label for="cat-nome">Nome da Categoria</label>
+          <input type="text" id="cat-nome" placeholder="Ex: Alimentação, Moradia, Salário" required>
+        </div>
+
+        <div class="form-group">
+          <label for="cat-tipo">Tipo da Categoria</label>
+          <select id="cat-tipo" required>
+            <option value="despesa">Despesa</option>
+            <option value="receita">Receita</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-submit">Cadastrar Categoria</button>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- MENU INFERIOR DE NAVEGAÇÃO -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-tab="inicio">
+      <span>🏠</span>
+      <small>Início</small>
+    </button>
+    <button class="nav-item" data-tab="lancamentos">
+      <span>📝</span>
+      <small>Lançar</small>
+    </button>
+    <button class="nav-item" data-tab="cartoes">
+      <span>💳</span>
+      <small>Cartões</small>
+    </button>
+    <button class="nav-item" data-tab="categorias">
+      <span>🏷️</span>
+      <small>Categorias</small>
+    </button>
+  </nav>
+
+  <!-- Código JavaScript da Aplicação -->
+  <script src="script.js"></script>
+</body>
+</html>
